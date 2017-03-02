@@ -1,0 +1,75 @@
+apply plugin: 'com.android.model.application'
+model {
+    android {
+        compileSdkVersion 25
+        buildToolsVersion "24.0.1"
+        defaultConfig {
+            applicationId "com.software.primenumbers"
+            minSdkVersion.apiLevel 16
+            targetSdkVersion.apiLevel 25
+            versionCode 1
+            versionName "1.0"
+            testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+            externalNativeBuild {
+                cmake {
+                }
+            }
+        }
+        sources {
+            main {
+                jni {
+                    source {
+                        srcDirs = ["../support-lib", "../generated-src", "../src/main/cpp"]
+
+                    }
+                }
+                java {
+                    source {
+                        srcDirs = [
+                                "../generated-src/java",
+                                "src/main/java"
+                        ]
+                    }
+                }
+            }
+        }
+        ndk {
+            toolchain = "gcc"
+            toolchainVersion = "4.9"
+            moduleName = "djinni-primes"
+            stl = "gnustl_shared"
+            cppFlags.add("-std=c++11")
+            cppFlags.add("-fexceptions")
+            cppFlags.add("-frtti")
+            cppFlags.add("-I${file("../support-lib")}".toString())
+            cppFlags.add("-I${file("../generated-src")}".toString())
+            cppFlags.add("-I${file("../support-lib/jni")}".toString())        // djinni src
+            cppFlags.add("-I${file("../src/main/cpp")}".toString())
+        }
+        buildTypes {
+            release {
+                minifyEnabled false
+                proguardFiles.add(file('proguard-android.txt'))
+                proguardFiles.add(file('proguard-rules.txt'))
+            }
+        }
+        externalNativeBuild {
+            cmake {
+                path "CMakeLists.txt"
+            }
+        }
+    }
+}
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.1.1'
+    compile "com.android.support:recyclerview-v7:25.1.1"
+    compile "com.android.support:cardview-v7:25.1.1"
+    compile 'io.reactivex:rxjava:1.1.0'
+    compile 'io.reactivex:rxandroid:1.1.0'
+    testCompile 'junit:junit:4.12'
+}
+
